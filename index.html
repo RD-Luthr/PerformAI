@@ -249,6 +249,28 @@
             margin-top: 20px;
         }
 
+        .skills-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .skill-pill {
+            background-color: #f0f0f0;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+
         .btn {
             padding: 8px 16px;
             border: none;
@@ -694,13 +716,11 @@
                             <span class="info-label">Location:</span>
                             <span class="info-value">${candidate.location}</span>
                         </div>
-                        <div class="info-item">
-                            <span class="info-label">Experience:</span>
-                            <span class="info-value">${candidate.job1}</span>
-                        </div>
-                        <div class="info-item">
+                        <div class="info-item skills-container">
                             <span class="info-label">Skills:</span>
-                            <span class="info-value">${candidate.skills}</span>
+                            <div class="skills-list">
+                                ${candidate.skills.split(',').map(skill => `<span class="skill-pill">${skill.trim()}</span>`).join('')}
+                            </div>
                         </div>
                     </div>
                     <div class="candidate-actions">
