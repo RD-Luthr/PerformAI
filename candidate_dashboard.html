@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Search Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0D313E 0%, #1a4a5c 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0D313E 0%, #1a4a5c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: 70vh;
+        }
+
+        .search-panel {
+            background: #BFF0EC;
+            padding: 40px;
+            border-right: 1px solid #a8e6e1;
+        }
+
+        .results-panel {
+            padding: 40px;
+            background: white;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+        }
+
+        .form-section h3 {
+            color: #0D313E;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-section h3::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #B29647, #d4b564);
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #0D313E;
+            font-size: 0.9rem;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #a8e6e1;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #B29647;
+            box-shadow: 0 0 0 3px rgba(178, 150, 71, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .search-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #B29647 0%, #d4b564 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(178, 150, 71, 0.3);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .results-header h3 {
+            color: #0D313E;
+            font-size: 1.4rem;
+        }
+
+        .results-count {
+            background: rgba(191, 240, 236, 0.3);
+            color: #0D313E;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 1px solid #BFF0EC;
+        }
+
+        .candidate-card {
+            background: white;
+            border: 2px solid #BFF0EC;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .candidate-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, #B29647, #d4b564);
+        }
+
+        .candidate-card:hover {
+            border-color: #B29647;
+            box-shadow: 0 8px 25px rgba(178, 150, 71, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .candidate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .candidate-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #0D313E;
+            margin-bottom: 5px;
+        }
+
+        .candidate-title {
+            color: #6c757d;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .candidate-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #0D313E;
+            margin-right: 8px;
+        }
+
+        .info-value {
+            color: #6c757d;
+        }
+
+        .candidate-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save {
+            background: #B29647;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #9a7f3b;
+            transform: translateY(-1px);
+        }
+
+        .btn-view {
+            background: #0D313E;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #0a2530;
+            transform: translateY(-1px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state h4 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-panel {
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .candidate-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Candidate Search Dashboard</h1>
+            <p>Find and manage the perfect candidates for your clients</p>
+        </div>
+
+        <div class="main-content">
+            <div class="search-panel">
+                <form id="searchForm">
+                    <div class="form-section">
+                        <h3>Client Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="client">Client</label>
+                                <input type="text" id="client" name="client" placeholder="Company name">
+                            </div>
+                            <div class="form-group">
+                                <label for="title">Job Title</label>
+                                <input type="text" id="title" name="title" placeholder="e.g. Senior Developer">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="seniority">Seniority Level</label>
+                                <select id="seniority" name="seniority">
+                                    <option value="">Select level</option>
+                                    <option value="junior">Junior</option>
+                                    <option value="mid">Mid-level</option>
+                                    <option value="senior">Senior</option>
+                                    <option value="lead">Lead</option>
+                                    <option value="principal">Principal</option>
+                                    <option value="director">Director</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="location">Location</label>
+                                <input type="text" id="location" name="location" placeholder="City, State or Remote">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Requirements</h3>
+                        <div class="form-group">
+                            <label for="mustHave">Must Have Skills</label>
+                            <textarea id="mustHave" name="mustHave" placeholder="Required skills, technologies, experience..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="niceToHave">Nice to Have</label>
+                            <textarea id="niceToHave" name="niceToHave" placeholder="Preferred skills, bonus qualifications..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Additional Info</h3>
+                        <div class="form-group">
+                            <label for="recruiters">Recruiters</label>
+                            <input type="text" id="recruiters" name="recruiters" placeholder="Assigned recruiter names">
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <textarea id="notes" name="notes" placeholder="Additional notes or comments..."></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="search-btn" id="searchBtn">
+                        Search Candidates
+                    </button>
+                </form>
+            </div>
+
+            <div class="results-panel">
+                <div class="results-header">
+                    <h3>Search Results</h3>
+                    <div class="results-count" id="resultsCount">0 candidates found</div>
+                </div>
+
+                <div id="searchResults">
+                    <div class="empty-state">
+                        <h4>Ready to find candidates</h4>
+                        <p>Fill out the search form and click "Search Candidates" to get started.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample candidate data - replace with your actual API
+        const sampleCandidates = [
+            {
+                id: 1,
+                name: "Sarah Johnson",
+                title: "Senior Full Stack Developer",
+                location: "New York, NY",
+                experience: "5 years",
+                skills: "React, Node.js, PostgreSQL",
+                email: "sarah.j@email.com",
+                saved: false
+            },
+            {
+                id: 2,
+                name: "Michael Chen",
+                title: "DevOps Engineer",
+                location: "San Francisco, CA",
+                experience: "7 years",
+                skills: "AWS, Docker, Kubernetes",
+                email: "m.chen@email.com",
+                saved: false
+            },
+            {
+                id: 3,
+                name: "Emily Rodriguez",
+                title: "Product Manager",
+                location: "Remote",
+                experience: "4 years",
+                skills: "Agile, Scrum, Analytics",
+                email: "emily.r@email.com",
+                saved: false
+            }
+        ];
+
+        let savedCandidates = JSON.parse(localStorage.getItem('savedCandidates') || '[]');
+
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const searchData = Object.fromEntries(formData.entries());
+            
+            // Show loading state
+            showLoading();
+            
+            try {
+                // This is where you'd call your n8n webhook
+                // const response = await fetch('YOUR_N8N_WEBHOOK_URL', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //     },
+                //     body: JSON.stringify(searchData)
+                // });
+                // const candidates = await response.json();
+                
+                // For demo purposes, using sample data
+                setTimeout(() => {
+                    displayResults(sampleCandidates);
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                showError('Failed to search candidates. Please try again.');
+            }
+        });
+
+        function showLoading() {
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <h4>Searching candidates...</h4>
+                    <p>This may take a few moments</p>
+                </div>
+            `;
+            
+            const searchBtn = document.getElementById('searchBtn');
+            searchBtn.disabled = true;
+            searchBtn.textContent = 'Searching...';
+        }
+
+        function displayResults(candidates) {
+            const resultsDiv = document.getElementById('searchResults');
+            const resultsCount = document.getElementById('resultsCount');
+            const searchBtn = document.getElementById('searchBtn');
+            
+            // Reset button
+            searchBtn.disabled = false;
+            searchBtn.textContent = 'Search Candidates';
+            
+            // Update count
+            resultsCount.textContent = `${candidates.length} candidates found`;
+            
+            if (candidates.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="empty-state">
+                        <h4>No candidates found</h4>
+                        <p>Try adjusting your search criteria</p>
+                    </div>
+                `;
+                return;
+            }
+
+            resultsDiv.innerHTML = candidates.map(candidate => `
+                <div class="candidate-card">
+                    <div class="candidate-header">
+                        <div>
+                            <div class="candidate-name">${candidate.name}</div>
+                            <div class="candidate-title">${candidate.title}</div>
+                        </div>
+                    </div>
+                    <div class="candidate-info">
+                        <div class="info-item">
+                            <span class="info-label">Location:</span>
+                            <span class="info-value">${candidate.location}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Experience:</span>
+                            <span class="info-value">${candidate.experience}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Skills:</span>
+                            <span class="info-value">${candidate.skills}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Email:</span>
+                            <span class="info-value">${candidate.email}</span>
+                        </div>
+                    </div>
+                    <div class="candidate-actions">
+                        <button class="btn btn-save" onclick="saveCandidate(${candidate.id})" ${savedCandidates.includes(candidate.id) ? 'disabled' : ''}>
+                            ${savedCandidates.includes(candidate.id) ? 'Saved ✓' : 'Save Candidate'}
+                        </button>
+                        <button class="btn btn-view" onclick="viewCandidate(${candidate.id})">
+                            View Profile
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function saveCandidate(candidateId) {
+            if (!savedCandidates.includes(candidateId)) {
+                savedCandidates.push(candidateId);
+                localStorage.setItem('savedCandidates', JSON.stringify(savedCandidates));
+                
+                // Update button
+                const button = event.target;
+                button.textContent = 'Saved ✓';
+                button.disabled = true;
+                
+                // Here you would also save to your database
+                // saveCandidateToDatabase(candidateId);
+                
+                alert('Candidate saved successfully!');
+            }
+        }
+
+        function viewCandidate(candidateId) {
+            // This would open a detailed view or redirect to candidate profile
+            alert(`Opening profile for candidate ${candidateId}`);
+        }
+
+        function showError(message) {
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = `
+                <div class="empty-state">
+                    <h4>Error</h4>
+                    <p>${message}</p>
+                </div>
+            `;
+            
+            const searchBtn = document.getElementById('searchBtn');
+            searchBtn.disabled = false;
+            searchBtn.textContent = 'Search Candidates';
+        }
+
+        // Initialize saved candidates count on load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log(`${savedCandidates.length} candidates previously saved`);
+        });
+    </script>
+</body>
+</html>
