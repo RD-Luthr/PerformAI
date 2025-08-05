@@ -606,39 +606,6 @@
     </div>
 
     <script>
-        // Sample candidate data - replace with your actual API
-        const sampleCandidates = [
-            {
-                id: 1,
-                name: "Sarah Johnson",
-                title: "Senior Full Stack Developer",
-                location: "New York, NY",
-                experience: "5 years",
-                skills: "React, Node.js, PostgreSQL",
-                email: "sarah.j@email.com",
-                saved: false
-            },
-            {
-                id: 2,
-                name: "Michael Chen",
-                title: "DevOps Engineer",
-                location: "San Francisco, CA",
-                experience: "7 years",
-                skills: "AWS, Docker, Kubernetes",
-                email: "m.chen@email.com",
-                saved: false
-            },
-            {
-                id: 3,
-                name: "Emily Rodriguez",
-                title: "Product Manager",
-                location: "Remote",
-                experience: "4 years",
-                skills: "Agile, Scrum, Analytics",
-                email: "emily.r@email.com",
-                saved: false
-            }
-        ];
 
         let savedCandidates = JSON.parse(localStorage.getItem('savedCandidates') || '[]');
 
@@ -648,29 +615,34 @@
             const formData = new FormData(this);
             const searchData = Object.fromEntries(formData.entries());
             
-            // Show loading state
+            // Show loading spinner
             showLoading();
-            
+
             try {
-                await fetch('https://apl-luth-surface-pro-6.tailf44f15.ts.net/webhook-test/search-candidates', {
+                const response = await fetch('https://apl-luth-surface-pro-6.tailf44f15.ts.net/webhook/search-candidates', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(searchData)
-                    });
+                });
 
-                
-                // For demo purposes, using sample data
-                setTimeout(() => {
-                    displayResults(sampleCandidates);
-                }, 2000);
-                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Webhook failed:", errorText);
+                    showError('Candidate search failed. Try again.');
+                    return;
+                }
+
+                const candidates = await response.json();
+                displayResults(candidates);  // ✅ actually show the live data
+
             } catch (error) {
                 console.error('Search error:', error);
                 showError('Failed to search candidates. Please try again.');
             }
         });
+
 
         function showLoading() {
             const resultsDiv = document.getElementById('searchResults');
