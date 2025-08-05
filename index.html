@@ -312,6 +312,157 @@
             100% { transform: rotate(360deg); }
         }
 
+        .welcome-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(13, 49, 62, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: all 0.6s ease;
+        }
+
+        .welcome-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .welcome-content {
+            text-align: center;
+            color: white;
+            max-width: 600px;
+            padding: 40px;
+            animation: welcomeFloat 0.8s ease-out;
+        }
+
+        .welcome-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #BFF0EC, #B29647);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #B29647 0%, #d4b564 100%);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 15px 35px rgba(178, 150, 71, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .start-btn:hover::before {
+            left: 100%;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(178, 150, 71, 0.4);
+        }
+
+        .start-btn:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .floating-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(191, 240, 236, 0.6);
+            border-radius: 50%;
+            animation: float 6s infinite linear;
+        }
+
+        .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 20%; animation-delay: 1s; }
+        .particle:nth-child(3) { left: 30%; animation-delay: 2s; }
+        .particle:nth-child(4) { left: 40%; animation-delay: 3s; }
+        .particle:nth-child(5) { left: 50%; animation-delay: 4s; }
+        .particle:nth-child(6) { left: 60%; animation-delay: 5s; }
+        .particle:nth-child(7) { left: 70%; animation-delay: 0.5s; }
+        .particle:nth-child(8) { left: 80%; animation-delay: 1.5s; }
+        .particle:nth-child(9) { left: 90%; animation-delay: 2.5s; }
+
+        @keyframes welcomeFloat {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .main-container {
+            transition: filter 0.6s ease;
+        }
+
+        .main-container.blurred {
+            filter: blur(5px);
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -319,7 +470,7 @@
             
             .search-panel {
                 border-right: none;
-                border-bottom: 1px solid #e9ecef;
+                border-bottom: 1px solid #a8e6e1;
             }
             
             .form-row {
@@ -329,11 +480,45 @@
             .candidate-info {
                 grid-template-columns: 1fr;
             }
+
+            .welcome-title {
+                font-size: 2.5rem;
+            }
+
+            .welcome-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .start-btn {
+                padding: 18px 40px;
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Welcome Overlay -->
+    <div class="welcome-overlay" id="welcomeOverlay">
+        <div class="floating-particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+        <div class="welcome-content">
+            <h1 class="welcome-title">Find Perfect Candidates</h1>
+            <p class="welcome-subtitle">Streamline your recruitment process with intelligent candidate search and management</p>
+            <button class="start-btn" onclick="startSearching()">Start Searching</button>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div class="container main-container" id="mainContainer">
         <div class="header">
             <h1>Candidate Search Dashboard</h1>
             <p>Find and manage the perfect candidates for your clients</p>
@@ -467,15 +652,14 @@
             showLoading();
             
             try {
-                // This is where you'd call your n8n webhook
-                // const response = await fetch('YOUR_N8N_WEBHOOK_URL', {
-                //     method: 'POST',
-                //     headers: {
-                //         'Content-Type': 'application/json',
-                //     },
-                //     body: JSON.stringify(searchData)
-                // });
-                // const candidates = await response.json();
+                await fetch('https://apl-luth-surface-pro-6.tailf44f15.ts.net/webhook-test/search-candidates', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(searchData)
+                    });
+
                 
                 // For demo purposes, using sample data
                 setTimeout(() => {
@@ -599,8 +783,20 @@
             searchBtn.textContent = 'Search Candidates';
         }
 
-        // Initialize saved candidates count on load
+        // Welcome overlay functionality
+        function startSearching() {
+            const overlay = document.getElementById('welcomeOverlay');
+            const mainContainer = document.getElementById('mainContainer');
+            
+            overlay.classList.add('hidden');
+            mainContainer.classList.remove('blurred');
+        }
+
+        // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
+            const mainContainer = document.getElementById('mainContainer');
+            mainContainer.classList.add('blurred');
+            
             console.log(`${savedCandidates.length} candidates previously saved`);
         });
     </script>
