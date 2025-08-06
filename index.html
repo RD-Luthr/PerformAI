@@ -1098,8 +1098,8 @@
                             Save to Google Sheets
                         </button>
                         -->
-                        <div class="google-sheets-icon" id="googleSheetsIcon" title="Export to Google Sheets">
-                            <img src="Google_Sheets_2020_%28Favicon%29.webp" alt="Google Sheets" />
+                        <div class="google-sheets-icon" id="googleSheetsIcon" title="Export to Google Sheets" onclick="saveToGoogleSheets()">
+                            <img src="Google_Sheets_2020_Logo.png" alt="Google Sheets" />
                         </div>
                         <div class="results-count" id="resultsCount">0 candidates found</div>
                     </div>
@@ -1300,16 +1300,17 @@
         document.getElementById('pagination').style.display = 'none';
     }
 
-    /* Commented out - Save to Google Sheets function
     async function saveToGoogleSheets() {
         if (allCandidates.length === 0) {
             alert('No candidates to save');
             return;
         }
 
-        const saveBtn = document.getElementById('saveToSheetsBtn');
-        saveBtn.disabled = true;
-        saveBtn.textContent = '💾 Saving...';
+        const googleSheetsIcon = document.getElementById('googleSheetsIcon');
+        const originalTitle = googleSheetsIcon.title;
+        googleSheetsIcon.title = 'Saving...';
+        googleSheetsIcon.style.opacity = '0.6';
+        googleSheetsIcon.style.pointerEvents = 'none';
 
         const dataToSend = allCandidates.map((candidate, index) => ({
             rank: index + 1,
@@ -1335,16 +1336,21 @@
 
             if (!response.ok) throw new Error("Failed to save");
             
-            saveBtn.textContent = 'Saved ✓';
-            saveBtn.disabled = true;
+            googleSheetsIcon.title = 'Saved ✓';
+            googleSheetsIcon.style.opacity = '1';
+            googleSheetsIcon.style.pointerEvents = 'none'; // Keep disabled after successful save
+            
+            // Add a checkmark overlay or change the icon appearance
+            googleSheetsIcon.style.filter = 'grayscale(1) brightness(0.8)';
+            
         } catch (err) {
             console.error(err);
             alert("❌ Error saving to Google Sheets.");
-            saveBtn.disabled = false;
-            saveBtn.textContent = 'Save to Google Sheets';
+            googleSheetsIcon.title = originalTitle;
+            googleSheetsIcon.style.opacity = '1';
+            googleSheetsIcon.style.pointerEvents = 'auto';
         }
     }
-    */
 
     function displayResults() {
         hideLoadingOverlay();
