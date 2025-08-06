@@ -618,6 +618,21 @@
             100% { transform: rotate(360deg); }
         }
 
+        .candidate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .candidate-rank {
+            font-weight: bold;
+            font-size: 14px;
+            color: #6c757d;
+            margin-left: auto;
+        }
+
+
         .welcome-overlay {
             position: fixed;
             top: 0;
@@ -1164,47 +1179,52 @@
         // Expand results panel when candidates are found
         mainContent.classList.add('results-visible');
 
-        resultsDiv.innerHTML = currentCandidates.map(candidate => `
-            <div class="candidate-card ${currentView === 'compact' ? 'compact' : ''}">
-                <div class="candidate-header">
-                    <div>
-                        <div class="candidate-name">${candidate.name}</div>
-                        <div class="candidate-title">${candidate.job1 || ''}</div>
+        resultsDiv.innerHTML = currentCandidates.map((candidate, index) => {
+            const rank = (currentPage - 1) * resultsPerPage + index + 1;
+            return `
+                <div class="candidate-card ${currentView === 'compact' ? 'compact' : ''}">
+                    <div class="candidate-header">
+                        <div>
+                            <div class="candidate-name">${candidate.name}</div>
+                            <div class="candidate-title">${candidate.job1 || ''}</div>
+                        </div>
+                        <div class="candidate-rank">#${rank}</div>
+                    </div>
+                    <div class="candidate-info">
+                        ${candidate.location ? `
+                            <div class="info-item">
+                                <span class="info-label">Location:</span>
+                                <span class="info-value">${candidate.location}</span>
+                            </div>
+                        ` : ''}
+                        ${candidate.skills ? `
+                            <div class="info-item skills-container">
+                                <span class="info-label">Skills:</span>
+                                <div class="skills-list">
+                                    ${candidate.skills.split(',').slice(0, 4).map(skill => `
+                                        <span class="skill-pill">${skill.trim()}</span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="candidate-actions">
+                        <button class="btn btn-save" onclick="saveCandidate(${candidate.id})" ${savedCandidates.includes(candidate.id) ? 'disabled' : ''}>
+                            ${savedCandidates.includes(candidate.id) ? 'Saved ✓' : 'Save Candidate'}
+                        </button>
+                        <img 
+                            src="LinkedIn_logo_initials.png" 
+                            alt="LinkedIn" 
+                            class="linkedin-icon" 
+                            title="View LinkedIn Profile" 
+                            style="width:32px; height:32px; cursor:pointer;"
+                            onclick="viewCandidate('${encodeURIComponent(candidate.linkedin_url || '')}')"
+                        />
                     </div>
                 </div>
-                <div class="candidate-info">
-                    ${candidate.location ? `
-                        <div class="info-item">
-                            <span class="info-label">Location:</span>
-                            <span class="info-value">${candidate.location}</span>
-                        </div>
-                    ` : ''}
-                    ${candidate.skills ? `
-                        <div class="info-item skills-container">
-                            <span class="info-label">Skills:</span>
-                            <div class="skills-list">
-                                ${candidate.skills.split(',').slice(0, 4).map(skill => `
-                                    <span class="skill-pill">${skill.trim()}</span>
-                                `).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
-                </div>
-                <div class="candidate-actions">
-                    <button class="btn btn-save" onclick="saveCandidate(${candidate.id})" ${savedCandidates.includes(candidate.id) ? 'disabled' : ''}>
-                        ${savedCandidates.includes(candidate.id) ? 'Saved ✓' : 'Save Candidate'}
-                    </button>
-                    <img 
-                        src="LinkedIn_logo_initials.png" 
-                        alt="LinkedIn" 
-                        class="linkedin-icon" 
-                        title="View LinkedIn Profile" 
-                        style="width:32px; height:32px; cursor:pointer;"
-                        onclick="viewCandidate('${encodeURIComponent(candidate.linkedin_url || '')}')"
-                        />
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
+
 
         paginationDiv.style.display = totalPages > 1 ? 'flex' : 'none';
         if (totalPages > 1) updatePagination();
