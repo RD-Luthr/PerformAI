@@ -90,13 +90,63 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0;
-            min-height: 70vh;
+            transition: grid-template-columns 0.5s ease;
+        }
+
+        .main-content.results-visible {
+            grid-template-columns: 1fr 2fr;
         }
 
         .search-panel {
             background: #BFF0EC;
             padding: 40px;
             border-right: 1px solid #a8e6e1;
+            position: relative;
+        }
+
+        .search-panel-loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(191, 240, 236, 0.95);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            border-radius: 0;
+        }
+
+        .search-panel-loading .loading-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(178, 150, 71, 0.2);
+        }
+
+        .search-panel-loading .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #B29647;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        .search-panel-loading h4 {
+            color: #0D313E;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .search-panel-loading p {
+            color: #6c757d;
+            font-size: 0.9rem;
         }
 
         .results-panel {
@@ -104,7 +154,7 @@
             background: white;
             display: flex;
             flex-direction: column;
-            height: 80vh;
+            max-height: 950px;
             overflow: hidden;
         }
 
@@ -128,6 +178,36 @@
             background: linear-gradient(135deg, #B29647, #d4b564);
             margin-right: 10px;
             border-radius: 2px;
+        }
+
+        .form-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .upload-label {
+            background: rgba(178, 150, 71, 0.1);
+            border: 2px solid #B29647;
+            color: #B29647;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .upload-label:hover {
+            background: #B29647;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(178, 150, 71, 0.3);
         }
 
         .form-row {
@@ -690,7 +770,8 @@
         }
 
         @media (max-width: 768px) {
-            .main-content {
+            .main-content,
+            .main-content.results-visible {
                 grid-template-columns: 1fr;
             }
             
@@ -744,6 +825,17 @@
             .header h1 {
                 font-size: 2rem;
             }
+
+            .form-section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .upload-label {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
         }
     </style>
 </head>
@@ -776,15 +868,30 @@
                     <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.42-1.41L7.83 13H20v-2z"/>
                 </svg>
             </div>
-            <h1>Candidate Search Dashboard</h1>
-            <p>Find and manage the perfect candidates for your clients</p>
+            <h1>Perform Candidate Dashboard</h1>
+            <p>Explore the perfect candidates for your clients</p>
         </div>
 
         <div class="main-content">
             <div class="search-panel">
+                <div class="search-panel-loading" id="searchPanelLoading">
+                    <div class="loading-content">
+                        <div class="spinner"></div>
+                        <h4>Processing PDF...</h4>
+                        <p>Extracting information from your document</p>
+                    </div>
+                </div>
                 <form id="searchForm">
                     <div class="form-section">
-                        <h3>Client Information</h3>
+                        <div class="form-section-header">
+                            <h3>Client Information</h3>
+                            <div>
+                                <input type="file" id="pdfUpload" accept=".pdf" style="display: none;">
+                                <label for="pdfUpload" class="upload-label" title="Upload search brief PDF">
+                                    📎 Upload PDF
+                                </label>
+                            </div>
+                        </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="client">Client</label>
@@ -797,22 +904,18 @@
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="seniority">Seniority Level</label>
-                                <select id="seniority" name="seniority">
-                                    <option value="">Select level</option>
-                                    <option value="junior">Junior</option>
-                                    <option value="mid">Mid-level</option>
-                                    <option value="senior">Senior</option>
-                                    <option value="lead">Lead</option>
-                                    <option value="principal">Principal</option>
-                                    <option value="director">Director</option>
-                                </select>
+                                <label for="Seniority">Seniority Level</label>
+                                <input type="text" id="seniority" name="seniority" placeholder="e.g. Senior">
                             </div>
                             <div class="form-group">
                                 <label for="location">Location</label>
                                 <input type="text" id="location" name="location" placeholder="City, State or Remote">
                             </div>
                         </div>
+                        <div class="form-section">
+                                <label for="companies"> Target Companies</label>
+                                <input type="text" id="companies" name="companies" placeholder="e.g. PepsiCo, Coca-Cola">
+                            </div>
                     </div>
 
                     <div class="form-section">
@@ -899,9 +1002,13 @@
     function goBackToWelcome() {
         const overlay = document.getElementById('welcomeOverlay');
         const mainContainer = document.getElementById('mainContainer');
+        const mainContent = document.querySelector('.main-content');
         
         overlay.classList.remove('hidden');
         mainContainer.classList.add('blurred');
+        
+        // Reset layout to default
+        mainContent.classList.remove('results-visible');
         
         // Clear search results
         const resultsDiv = document.getElementById('searchResults');
@@ -971,6 +1078,20 @@
         document.getElementById('pagination').style.display = 'none';
     }
 
+    function showSearchPanelLoading() {
+        const loadingOverlay = document.getElementById('searchPanelLoading');
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'flex';
+        }
+    }
+
+    function hideSearchPanelLoading() {
+        const loadingOverlay = document.getElementById('searchPanelLoading');
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'none';
+        }
+    }
+
     // Remove overlay when done (call this in displayResults and showError)
     function hideLoadingOverlay() {
         const overlay = document.getElementById('loadingOverlay');
@@ -991,6 +1112,11 @@
         hideLoadingOverlay();
         
         const resultsDiv = document.getElementById('searchResults');
+        const mainContent = document.querySelector('.main-content');
+        
+        // Reset layout to default on error
+        mainContent.classList.remove('results-visible');
+        
         resultsDiv.innerHTML = `
             <div class="empty-state">
                 <h4>Error</h4>
@@ -1011,6 +1137,7 @@
         const resultsCount = document.getElementById('resultsCount');
         const searchBtn = document.getElementById('searchBtn');
         const paginationDiv = document.getElementById('pagination');
+        const mainContent = document.querySelector('.main-content');
         
         searchBtn.disabled = false;
         searchBtn.textContent = 'Search Candidates';
@@ -1030,8 +1157,12 @@
                 </div>
             `;
             paginationDiv.style.display = 'none';
+            mainContent.classList.remove('results-visible');
             return;
         }
+
+        // Expand results panel when candidates are found
+        mainContent.classList.add('results-visible');
 
         resultsDiv.innerHTML = currentCandidates.map(candidate => `
             <div class="candidate-card ${currentView === 'compact' ? 'compact' : ''}">
@@ -1063,7 +1194,14 @@
                     <button class="btn btn-save" onclick="saveCandidate(${candidate.id})" ${savedCandidates.includes(candidate.id) ? 'disabled' : ''}>
                         ${savedCandidates.includes(candidate.id) ? 'Saved ✓' : 'Save Candidate'}
                     </button>
-                    <img src="LinkedIn_logo_initials.png" alt="LinkedIn" class="linkedin-icon" onclick="viewCandidate(${candidate.id})" title="View LinkedIn Profile" style="width:32px; height:32px; cursor:pointer;">
+                    <img 
+                        src="LinkedIn_logo_initials.png" 
+                        alt="LinkedIn" 
+                        class="linkedin-icon" 
+                        title="View LinkedIn Profile" 
+                        style="width:32px; height:32px; cursor:pointer;"
+                        onclick="viewCandidate('${encodeURIComponent(candidate.linkedin_url || '')}')"
+                        />
                 </div>
             </div>
         `).join('');
@@ -1124,14 +1262,67 @@
         }
     }
 
-    function viewCandidate(candidateId) {
-        const candidate = allCandidates.find(c => c.id === candidateId);
-        if (candidate?.linkedinURL) {
-            window.open(candidate.linkedinURL, '_blank');
+    function viewCandidate(encodedUrl) {
+        const url = decodeURIComponent(encodedUrl);
+        if (url) {
+            window.open(url, '_blank');
         } else {
             alert("No LinkedIn profile found for this candidate.");
         }
     }
+
+
+
+    document.getElementById('pdfUpload').addEventListener('change', async function (e) {
+        const file = e.target.files[0];
+        if (!file || file.type !== "application/pdf") {
+            alert("Please upload a valid PDF file.");
+            return;
+        }
+
+        showSearchPanelLoading();
+
+        try {
+            const formData = new FormData();
+            formData.append("pdf", file);
+
+            const response = await fetch("https://apl-luth-surface-pro-6.tailf44f15.ts.net/webhook-test/pdf-parse-webhook", {
+                method: "POST",
+                body: formData
+            });
+
+            if (!response.ok) {
+                alert("Failed to extract data from PDF.");
+                hideSearchPanelLoading();
+                return;
+            }
+
+            const parsedFields = await response.json();
+            const data = parsedFields[0];  // Get the first (and only) object in the array
+
+            // Fill form fields
+            document.querySelector('[name="client"]').value = data.client_name || "";
+            document.querySelector('[name="title"]').value = data.job_title || "";
+            document.querySelector('[name="seniority"]').value = data.seniority || "";
+            document.querySelector('[name="companies"]').value = (data.target_companies || []).join(', ');
+            document.querySelector('[name="location"]').value = data.location || "";
+            document.querySelector('[name="mustHave"]').value = (data.must_have_criteria || []).join('\n');
+            document.querySelector('[name="niceToHave"]').value = (data.nice_to_have_criteria || []).join('\n');
+            document.querySelector('[name="notes"]').value = data.notes || "";
+            if (document.querySelector('[name="recruiter"]')) {
+                document.querySelector('[name="recruiter"]').value = data.recruiter || "";
+            }
+
+            hideSearchPanelLoading();
+
+        } catch (error) {
+            console.error('PDF processing error:', error);
+            alert("An error occurred while processing the PDF.");
+            hideSearchPanelLoading();
+        }
+    });
+
+
 
     document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('mainContainer').classList.add('blurred');
