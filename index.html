@@ -284,6 +284,39 @@
             flex-shrink: 0;
         }
 
+        .results-header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .save-to-sheets-btn {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: rgba(203, 240, 191, 0.3);
+            color: #0D313E;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 1px solid #BFF0EC;
+        }
+
+        .save-to-sheets-btn:hover {
+            background: rgba(128, 239, 90, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(52, 168, 83, 0.3);
+        }
+
+        .save-to-sheets-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .results-header h3 {
             color: #0D313E;
             font-size: 1.4rem;
@@ -962,7 +995,12 @@
             <div class="results-panel">
                 <div class="results-header">
                     <h3>Search Results</h3>
-                    <div class="results-count" id="resultsCount">0 candidates found</div>
+                    <div class="results-header-right">
+                        <button class="save-to-sheets-btn" id="saveToSheetsBtn" onclick="saveToGoogleSheets()">
+                            Save to Google Sheets
+                        </button>
+                        <div class="results-count" id="resultsCount">0 candidates found</div>
+                    </div>
                 </div>
 
                 <div class="results-controls">
@@ -1146,6 +1184,64 @@
         document.getElementById('pagination').style.display = 'none';
     }
 
+    function saveToGoogleSheets() {
+        if (allCandidates.length === 0) {
+            alert('No candidates to save');
+            return;
+        }
+
+        const saveBtn = document.getElementById('saveToSheetsBtn');
+        saveBtn.disabled = true;
+        saveBtn.textContent = '💾 Saving...';
+
+        // Prepare data for Google Sheets
+        const sheetsData = allCandidates.map((candidate, index) => ({
+            rank: index + 1,
+            name: candidate.name || '',
+            title: candidate.job1 || '',
+            location: candidate.location || '',
+            skills: candidate.skills || '',
+            linkedin_url: candidate.linkedin_url || '',
+            // Add any other fields you want to include
+        }));
+
+        // You can replace this with your actual Google Sheets API call
+        // For now, this will download as CSV or you can integrate with Google Sheets API
+        try {
+            // Convert to CSV format
+            const headers = ['Rank', 'Name', 'Title', 'Location', 'Skills', 'LinkedIn URL'];
+            const csvContent = [
+                headers.join(','),
+                ...sheetsData.map(row => [
+                    row.rank,
+                    `"${row.name.replace(/"/g, '""')}"`,
+                    `"${row.title.replace(/"/g, '""')}"`,
+                    `"${row.location.replace(/"/g, '""')}"`,
+                    `"${row.skills.replace(/"/g, '""')}"`,
+                    row.linkedin_url
+                ].join(','))
+            ].join('\n');
+
+            // Create and download CSV file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `candidates_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+        } catch (error) {
+            console.error('Error saving to sheets:', error);
+            alert('Error saving candidates. Please try again.');
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save to Google Sheets';
+        }
+    }
+
     function displayResults() {
         hideLoadingOverlay();
         const resultsDiv = document.getElementById('searchResults');
@@ -1153,6 +1249,7 @@
         const searchBtn = document.getElementById('searchBtn');
         const paginationDiv = document.getElementById('pagination');
         const mainContent = document.querySelector('.main-content');
+        const saveToSheetsBtn = document.getElementById('saveToSheetsBtn');
         
         searchBtn.disabled = false;
         searchBtn.textContent = 'Search Candidates';
@@ -1173,9 +1270,13 @@
             `;
             paginationDiv.style.display = 'none';
             mainContent.classList.remove('results-visible');
+            saveToSheetsBtn.style.display = 'none'; // Hide button when no results
             return;
         }
 
+        // Show Save to Google Sheets button when results are displayed
+        saveToSheetsBtn.style.display = 'flex';
+        
         // Expand results panel when candidates are found
         mainContent.classList.add('results-visible');
 
@@ -1209,7 +1310,9 @@
                         ` : ''}
                     </div>
                     <div class="candidate-actions">
-                        <button class="btn btn-save" onclick="saveCandidate(${candidate.id})" ${savedCandidates.includes(candidate.id) ? 'disabled' : ''}>
+                        <button class="btn btn-save" 
+                            onclick="saveCandidate('${String(candidate.id).replace(/'/g, "\\'")}')" 
+                            ${savedCandidates.includes(candidate.id) ? 'disabled' : ''}>
                             ${savedCandidates.includes(candidate.id) ? 'Saved ✓' : 'Save Candidate'}
                         </button>
                         <img 
@@ -1270,17 +1373,19 @@
         if (allCandidates.length > 0) displayResults();
     }
 
-    function saveCandidate(candidateId) {
-        if (!savedCandidates.includes(candidateId)) {
-            savedCandidates.push(candidateId);
+    function saveCandidate(id) {
+        if (!savedCandidates.includes(id)) {
+            savedCandidates.push(id);
             localStorage.setItem('savedCandidates', JSON.stringify(savedCandidates));
 
             const button = event.target;
             button.textContent = 'Saved ✓';
             button.disabled = true;
+
             alert('Candidate saved successfully!');
         }
     }
+
 
     function viewCandidate(encodedUrl) {
         const url = decodeURIComponent(encodedUrl);
