@@ -295,6 +295,7 @@
             gap: 15px;
         }
 
+        /* Commented out - Save to Google Sheets button styles
         .save-to-sheets-btn {
             cursor: pointer;
             transition: all 0.3s ease;
@@ -303,7 +304,7 @@
             gap: 6px;
             height: 38px;
             background: rgba(203, 240, 191, 0.3);
-            color: #0D313E;
+            color: #0F9D58;
             padding: 8px 16px;
             border-radius: 20px;
             font-weight: 600;
@@ -321,6 +322,36 @@
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+        }
+        */
+
+        .google-sheets-icon {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(52, 168, 83, 0.1);
+            border: 1px solid rgba(52, 168, 83, 0.2);
+        }
+
+        .google-sheets-icon:hover {
+            background: rgba(52, 168, 83, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(52, 168, 83, 0.3);
+        }
+
+        .google-sheets-icon img {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .google-sheets-icon:hover img {
+            transform: scale(1.1);
         }
 
         .results-header h3 {
@@ -426,7 +457,7 @@
             border-radius: 15px;
             padding: 25px;
             padding-top: 20px;
-            padding-bottom: 0px;
+            padding-bottom: 20px;
             margin-bottom: 20px;
             transition: all 0.3s ease;
             position: relative;
@@ -447,6 +478,79 @@
             border-color: #B29647;
             box-shadow: 0 8px 25px rgba(178, 150, 71, 0.15);
             transform: translateY(-2px);
+        }
+
+        .learn-more-btn {
+            background: rgba(178, 150, 71, 0.1);
+            border: 1px solid #B29647;
+            color: #B29647;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .learn-more-btn:hover {
+            background: #B29647;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .learn-more-btn .arrow {
+            transition: transform 0.3s ease;
+            font-size: 0.7rem;
+        }
+
+        .learn-more-btn.expanded .arrow {
+            transform: rotate(180deg);
+        }
+
+        .candidate-reason {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(191, 240, 236, 0.1);
+            border-radius: 10px;
+            border-left: 3px solid #B29647;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .candidate-reason.visible {
+            display: block;
+        }
+
+        .candidate-reason h5 {
+            color: #0D313E;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .candidate-reason p {
+            color: #6c757d;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+                padding-top: 0;
+                padding-bottom: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 200px;
+                padding-top: 15px;
+                padding-bottom: 15px;
+            }
         }
 
         .candidate-card.compact {
@@ -989,9 +1093,14 @@
                 <div class="results-header">
                     <h3>Search Results</h3>
                     <div class="results-header-right">
+                        <!-- Commented out - Save to Google Sheets button
                         <button class="save-to-sheets-btn" id="saveToSheetsBtn" onclick="saveToGoogleSheets()">
                             Save to Google Sheets
                         </button>
+                        -->
+                        <div class="google-sheets-icon" id="googleSheetsIcon" title="Export to Google Sheets">
+                            <img src="Google_Sheets_2020_%28Favicon%29.webp" alt="Google Sheets" />
+                        </div>
                         <div class="results-count" id="resultsCount">0 candidates found</div>
                     </div>
                 </div>
@@ -1079,6 +1188,16 @@
         const searchBtn = document.getElementById('searchBtn');
         searchBtn.disabled = false;
         searchBtn.textContent = 'Search Candidates';
+        
+        // Reset Save to Google Sheets button (commented out)
+        // const saveToSheetsBtn = document.getElementById('saveToSheetsBtn');
+        // saveToSheetsBtn.disabled = false;
+        // saveToSheetsBtn.textContent = 'Save to Google Sheets';
+        // saveToSheetsBtn.style.display = 'none';
+        
+        // Reset Google Sheets icon
+        const googleSheetsIcon = document.getElementById('googleSheetsIcon');
+        googleSheetsIcon.style.display = 'none';
         
         // Clear form data
         document.getElementById('searchForm').reset();
@@ -1181,6 +1300,7 @@
         document.getElementById('pagination').style.display = 'none';
     }
 
+    /* Commented out - Save to Google Sheets function
     async function saveToGoogleSheets() {
         if (allCandidates.length === 0) {
             alert('No candidates to save');
@@ -1224,6 +1344,7 @@
             saveBtn.textContent = 'Save to Google Sheets';
         }
     }
+    */
 
     function displayResults() {
         hideLoadingOverlay();
@@ -1232,7 +1353,8 @@
         const searchBtn = document.getElementById('searchBtn');
         const paginationDiv = document.getElementById('pagination');
         const mainContent = document.querySelector('.main-content');
-        const saveToSheetsBtn = document.getElementById('saveToSheetsBtn');
+        // const saveToSheetsBtn = document.getElementById('saveToSheetsBtn'); // Commented out
+        const googleSheetsIcon = document.getElementById('googleSheetsIcon');
         
         searchBtn.disabled = false;
         searchBtn.textContent = 'Search Candidates';
@@ -1253,12 +1375,14 @@
             `;
             paginationDiv.style.display = 'none';
             mainContent.classList.remove('results-visible');
-            saveToSheetsBtn.style.display = 'none'; // Hide button when no results
+            // saveToSheetsBtn.style.display = 'none'; // Commented out - Hide button when no results
+            googleSheetsIcon.style.display = 'none'; // Hide icon when no results
             return;
         }
 
-        // Show Save to Google Sheets button when results are displayed
-        saveToSheetsBtn.style.display = 'flex';
+        // Show Google Sheets icon when results are displayed
+        // saveToSheetsBtn.style.display = 'flex'; // Commented out
+        googleSheetsIcon.style.display = 'flex';
         
         // Expand results panel when candidates are found
         mainContent.classList.add('results-visible');
@@ -1282,7 +1406,7 @@
                             </div>
                             <div class="candidate-title">${candidate.job1 || ''}</div>
                         </div>
-                        <div class="candidate-rank">#${rank}</div>
+                        <div class="candidate-rank">${candidate.score}/10</div>
                     </div>
                     <div class="candidate-info">
                         ${candidate.location ? `
@@ -1302,6 +1426,15 @@
                             </div>
                         ` : ''}
                     </div>
+                    ${candidate.reason ? `
+                        <button class="learn-more-btn" onclick="toggleCandidateReason(${rank})">
+                            Learn More <span class="arrow">▼</span>
+                        </button>
+                        <div class="candidate-reason" id="reason-${rank}">
+                            <h5>Why this candidate is a good match:</h5>
+                            <p>${candidate.reason}</p>
+                        </div>
+                    ` : ''}
                 </div>
             `;
         }).join('');
@@ -1383,6 +1516,24 @@
             .replace(/,?\s*USA$/i, '')
             .replace(/,?\s*US$/i, '')
             .trim();
+    }
+
+    function toggleCandidateReason(rank) {
+        const reasonDiv = document.getElementById(`reason-${rank}`);
+        const button = event.target;
+        const arrow = button.querySelector('.arrow');
+        
+        if (reasonDiv.classList.contains('visible')) {
+            // Close the reason section
+            reasonDiv.classList.remove('visible');
+            button.classList.remove('expanded');
+            button.innerHTML = 'Learn More <span class="arrow">▼</span>';
+        } else {
+            // Open the reason section
+            reasonDiv.classList.add('visible');
+            button.classList.add('expanded');
+            button.innerHTML = 'Show Less <span class="arrow">▼</span>';
+        }
     }
 
 
