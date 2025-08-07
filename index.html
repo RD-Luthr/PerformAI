@@ -1154,7 +1154,7 @@
             </div>
         </div>
     </div>
-
+</body>
 <script>
     let savedCandidates = JSON.parse(localStorage.getItem('savedCandidates') || '[]');
     let allCandidates = [];
@@ -1350,7 +1350,7 @@
         }));
 
         try {
-            const response = await fetch("https://apl-luth-surface-pro-6.tailf44f15.ts.net/webhook-test/save-candidates", {
+            const response = await fetch("https://apl-luth-surface-pro-6.tailf44f15.ts.net/webhook/save-candidates", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(dataToSend)
@@ -1501,12 +1501,17 @@
         lastPage.disabled = currentPage === totalPages;
     }
 
-    function goToPage(page) {
-        if (page >= 1 && page <= totalPages && page !== currentPage) {
-            currentPage = page;
-            displayResults();
+function goToPage(page) {
+    if (page >= 1 && page <= totalPages && page !== currentPage) {
+        currentPage = page;
+        displayResults();
+        // Scroll the results panel to the top
+        const resultsPanel = document.querySelector('.results-panel');
+        if (resultsPanel) {
+            resultsPanel.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }
+}
 
     function changeResultsPerPage() {
         resultsPerPage = parseInt(document.getElementById('resultsPerPage').value);
@@ -1590,7 +1595,7 @@
             const formData = new FormData();
             formData.append("pdf", file);
 
-            const response = await fetch("https://apl-luth-surface-pro-6.tailf44f15.ts.net/webhook-test/pdf-parse-webhook", {
+            const response = await fetch("https://apl-luth-surface-pro-6.tailf44f15.ts.net/webhook/pdf-parse-webhook", {
                 method: "POST",
                 body: formData
             });
@@ -1649,7 +1654,7 @@
             showLoading();
 
             try {
-                const response = await fetch('https://apl-luth-surface-pro-6.tailf44f15.ts.net/webhook-test/search-candidates', {
+                const response = await fetch('https://apl-luth-surface-pro-6.tailf44f15.ts.net/webhook/search-candidates', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(searchData)
