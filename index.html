@@ -1098,8 +1098,25 @@
                             Save to Google Sheets
                         </button>
                         -->
-                        <div class="google-sheets-icon" id="googleSheetsIcon" title="Export to Google Sheets" onclick="saveToGoogleSheets()">
-                            <img src="Google_Sheets_2020_Logo.png" alt="Google Sheets" />
+                        <div id="googleSheetsWrapper" style="position: relative; display: inline-block;">
+                            <span id="spreadsheetBubble" style="
+                                display: none;
+                                position: absolute;
+                                top: -30px;
+                                left: 50%;
+                                transform: translateX(-50%);
+                                background: rgba(203, 240, 191, 0.3);
+                                color: #0F9D58;
+                                border-radius: 10px;
+                                padding: 4px 8px;
+                                font-size: 12px;
+                                white-space: nowrap;
+                                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                                z-index: 999;
+                            "></span>
+                            <div class="google-sheets-icon" id="googleSheetsIcon" title="Export to Google Sheets" onclick="saveToGoogleSheets()">
+                                <img src="Google_Sheets_2020_Logo.png" alt="Google Sheets" />
+                            </div>
                         </div>
                         <div class="results-count" id="resultsCount">0 candidates found</div>
                     </div>
@@ -1208,6 +1225,12 @@
     }
 
     function showLoading() {
+        // Scroll to top of page when loading starts
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
         // Create overlay if it doesn't exist
         let overlay = document.getElementById('loadingOverlay');
         if (!overlay) {
@@ -1307,7 +1330,9 @@
         }
 
         const googleSheetsIcon = document.getElementById('googleSheetsIcon');
+        const spreadsheetBubble = document.getElementById('spreadsheetBubble');
         const originalTitle = googleSheetsIcon.title;
+
         googleSheetsIcon.title = 'Saving...';
         googleSheetsIcon.style.opacity = '0.6';
         googleSheetsIcon.style.pointerEvents = 'none';
@@ -1327,22 +1352,30 @@
         try {
             const response = await fetch("https://apl-luth-surface-pro-6.tailf44f15.ts.net/webhook-test/save-candidates", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(dataToSend)
-                
             });
 
             if (!response.ok) throw new Error("Failed to save");
-            
+
+            const result = await response.json(); // expected: { sheet_url: "https://..." }
+
             googleSheetsIcon.title = 'Saved ✓';
             googleSheetsIcon.style.opacity = '1';
-            googleSheetsIcon.style.pointerEvents = 'none'; // Keep disabled after successful save
-            
-            // Add a checkmark overlay or change the icon appearance
+            googleSheetsIcon.style.pointerEvents = 'none';
             googleSheetsIcon.style.filter = 'grayscale(1) brightness(0.8)';
-            
+
+            if (result.spreadsheetUrl) {
+                spreadsheetBubble.innerHTML = `
+                    <a href="${result.spreadsheetUrl}" target="_blank" style="
+                        color: #0F9D58;
+                        text-decoration: none;
+                        font-weight: 600;
+                    ">📄 View Sheet</a>
+                `;
+                spreadsheetBubble.style.display = 'inline-block';
+            }
+
         } catch (err) {
             console.error(err);
             alert("❌ Error saving to Google Sheets.");
